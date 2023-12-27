@@ -13,14 +13,14 @@ from swervepy.impl import (
     DummyGyro,
     AbsoluteDutyCycleEncoder,
     CoaxialSwerveModule,
-    Falcon500CoaxialDriveComponent,
-    Falcon500CoaxialAzimuthComponent,
+    NEOCoaxialDriveComponent,
+    NEOCoaxialAzimuthComponent,
 )
 
 # Define which components you're using (e.g. which motors you're using)
 #
-drive_component_class = Falcon500CoaxialDriveComponent
-azimuth_component_class = Falcon500CoaxialAzimuthComponent
+drive_component_class = NEOCoaxialDriveComponent
+azimuth_component_class = NEOCoaxialAzimuthComponent
 gyro_component_class = DummyGyro
 absolute_encoder_class = AbsoluteDutyCycleEncoder
 
@@ -43,7 +43,7 @@ drive_param_values = {
     "drive_peak_current_limit": ELEC.drive_peak_current_limit,
 
     # remove the following line for NEOCoaxialDriveComponent
-    "drive_peak_current_duration": ELEC.drive_peak_current_duration,
+    #"drive_peak_current_duration": ELEC.drive_peak_current_duration,
 
     "neutral_mode": OP.propulsion_neutral,
     "kP": SW.kP,
@@ -66,7 +66,7 @@ azimuth_param_values = {
     "azimuth_peak_current_limit": ELEC.azimuth_peak_current_limit,
 
     # remove the following line for NEOCoaxialDriveComponent
-    "azimuth_peak_current_duration": ELEC.azimuth_peak_current_duration,
+    #"azimuth_peak_current_duration": ELEC.azimuth_peak_current_duration,
 
     "neutral_mode": OP.steering_neutral,
     "kP": SW.kP,
