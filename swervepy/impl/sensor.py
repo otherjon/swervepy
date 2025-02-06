@@ -1,6 +1,7 @@
 import enum
 import math
 
+import navx
 import phoenix5.sensors
 import phoenix6.hardware
 import rev
@@ -8,7 +9,6 @@ import wpilib
 from wpimath.geometry import Rotation2d
 
 from ..abstract.sensor import AbsoluteEncoder, Gyro
-
 
 class AbsoluteCANCoder(AbsoluteEncoder):
     def __init__(self, id_: int | tuple[int, str], invert: bool = False):
@@ -38,23 +38,25 @@ class AbsoluteCANCoder(AbsoluteEncoder):
 
 
 class AbsoluteDutyCycleEncoder(AbsoluteEncoder):
-    def __init__(self, dio_pin: int):
+    def __init__(self, dio_pin: int, abs_offset: float = 0):
         super().__init__()
 
         self._encoder = wpilib.DutyCycleEncoder(dio_pin)
+        self.abs_offset = abs_offset
         wpilib.SmartDashboard.putData(f"Absolute PWM Encoder {dio_pin}", self)
 
     @property
     def absolute_position_degrees(self) -> float:
         pos = self._encoder.get()  # 0.0 <= pos < 1.0 (rotations)
-        degrees = 360 * pos
-        return degrees
+        degrees = 360 * pos - self.abs_offset
+        return degrees % 360
 
     @property
     def absolute_position(self) -> Rotation2d:
         return Rotation2d.fromDegrees(self.absolute_position_degrees)
 
     def reset_zero_position(self):
+        # This doesn't seem to do anything...
         self._encoder.setPositionOffset(0)
 
 
@@ -115,10 +117,33 @@ class Pigeon2Gyro(Gyro):
         return Rotation2d.fromDegrees(yaw)
 
 
+class NavXGyro(Gyro):
+    def __init__(self, gyro: navx.AHRS = None, invert: bool = False):
+        super().__init__()
+        self.invert = invert
+
+        if gyro:
+            self.navx = gyro
+        else:
+            self.navx = navx.AHRS.create_spi()
+
+        wpilib.SmartDashboard.putData("NavX", self.navx)
+
+    def zero_heading(self):
+        self.navx.zeroYaw()
+
+    @property
+    def heading(self) -> Rotation2d:
+        yaw = self.navx.getYaw()
+        if self.invert:
+            yaw = 360 - yaw
+        return Rotation2d.fromDegrees(yaw)
+
+
 class DummyGyro(Gyro):
     """Gyro that does nothing on a real robot but functions normally in simulation"""
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         super().__init__()
         self._radians = 0
 
