@@ -343,9 +343,6 @@ class SwerveDrive(commands2.Subsystem):
 
         # TODO: Re-impl trajectory visualisation on Field2d
 
-        # Find the drive base radius (the distance from the center of the robot to the furthest module)
-        radius = greatest_distance_from_translations([module.placement for module in self._modules])
-
         # Position feedback controller for following waypoints
         controller = PPHolonomicDriveController(
             PIDConstants(parameters.xy_kP),
